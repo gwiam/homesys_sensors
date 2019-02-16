@@ -8,6 +8,9 @@ const EventSchema = new mongoose.Schema({
 		type: Date,
 		required: true,
 		default: Date.now
+	},
+	data: {
+		type: Array
 	}
 });
 
