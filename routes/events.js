@@ -10,6 +10,7 @@ const EventEntry = require('../models/EventEntry');
 router.get('/', (req, res) => {
 	EventEntry.find({eventType: "TempSensor"})
 		.sort({timestamp: 1})
+		.limit(80)
 		.then(entries => res.json(entries)
 	)
 });
