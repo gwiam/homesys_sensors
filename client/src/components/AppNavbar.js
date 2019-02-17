@@ -6,10 +6,6 @@ import {
 
 class AppNavbar extends Component{
 
-	constructor(props){
-		super(props);
-	}
-
 	render() {
 		return (
 		<Navbar color="dark" dark expand="sm" className="mb-5">

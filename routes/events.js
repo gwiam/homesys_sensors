@@ -8,8 +8,8 @@ const EventEntry = require('../models/EventEntry');
 // @route GET /events
 // @desc Get all events happened
 router.get('/', (req, res) => {
-	EventEntry.find()
-		.sort({timestamp: -1})
+	EventEntry.find({eventType: "TempSensor"})
+		.sort({timestamp: 1})
 		.then(entries => res.json(entries)
 	)
 });
