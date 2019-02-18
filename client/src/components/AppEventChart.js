@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+import {Button, ButtonGroup, ButtonDropdown,
+		DropdownToggle, DropdownMenu, DropdownItem,
+		Container, Row, Col} from 'reactstrap';
 import {Line} from 'react-chartjs-2';
 
 class AppEventChart extends Component{
@@ -51,14 +54,23 @@ class AppEventChart extends Component{
 				}
 			},
 			chartData: [],
-			isLoaded: false
+			limitSelected: 80,
+			sortingDropdownOpen: false,
+			sortingSelection: 0,
+			sortingSelectionNames: ["latest", "earliest today", "earliest"]
 		}
+		this.toggleSorting = this.toggleSorting.bind(this);
 	}
-	componentDidMount(){
-		fetch('./events').then(response => response.json()).then(data => {
+
+	updateChartFromData(jsonData = null){
+		var formattedHumArray = [];
+		var formattedTmpArray = [];
+		this.postQuery("./events", (jsonData != null) ? jsonData : {
+			limit: this.state.limitSelected,
+			sortBy: this.state.sortingSelection
+		}).then(response => response.json()).then(data => {
 			// new array
-			var formattedHumArray = [];
-			var formattedTmpArray = data.map(item => {
+			formattedTmpArray = data.map(item => {
 					formattedHumArray.push({
 						x: new Date(item.timestamp),
 						y: parseInt(item.data[1], 10)
@@ -66,14 +78,11 @@ class AppEventChart extends Component{
 					return {
 						x: new Date(item.timestamp),
 						y: parseInt(item.data[0], 10)
-					}
+					};
 			});
-
-
 			this.setState({
 				dbRaw: data,
 				chartPoints : formattedTmpArray,
-				isLoaded : true,
 				chartData: {
 					datasets:[
 						{
@@ -125,12 +134,79 @@ class AppEventChart extends Component{
 			});
 		});
 	}
+
+	componentDidMount(){
+		this.updateChartFromData();	
+	}
+
+	postQuery(url, jsonData){
+		return fetch(url, {
+			method: "POST",
+			//mode: "cors", // no-cors, cors, *same-origin
+			cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+			//credentials: "same-origin", // include, *same-origin, omit
+			headers: {
+				"Content-Type": "application/json",
+				// "Content-Type": "application/x-www-form-urlencoded",
+			},
+			//redirect: "follow", // manual, *follow, error
+			//referrer: "no-referrer", // no-referrer, *client
+			body: JSON.stringify(jsonData), // body data type must match "Content-Type" header
+		});
+	}
+
+	onLimitSelection(rSelected){
+		this.setState({limitSelected : rSelected}); //setState might update asynchronously in batches!
+		this.updateChartFromData({
+			limit: rSelected,
+			sortBy: this.state.sortingSelection
+		});
+	}
+
+	onChangingSorting(sSorting){
+		this.setState({sortingSelection: sSorting});
+		this.updateChartFromData({
+			limit: this.state.limitSelected,
+			sortBy: sSorting
+		});
+	}
+
+	toggleSorting(){
+		this.setState({sortingDropdownOpen : !this.state.sortingDropdownOpen});
+	}
+
 	render(){
-		// IMPORTANT: redraw mechanism
+		// IMPORTANT: redraw mechanism updates automatically if one property changed
 		return (
 			<div>
+				<Container>
+					<Row>
+						<Col>
+							<h6>Query limit</h6> {' '}
+							<ButtonGroup>
+								<Button onClick={() => this.onLimitSelection(30)} active={this.state.limitSelected === 30}>30</Button>
+								<Button onClick={() => this.onLimitSelection(80)}  active= {this.state.limitSelected === 80}>80 (default)</Button>
+								<Button onClick={() => this.onLimitSelection(160)}  active={this.state.limitSelected === 160}>160</Button>
+								<Button onClick={() => this.onLimitSelection(0)}  active={this.state.limitSelected === 0}>no limit</Button>
+							</ButtonGroup>
+						</Col>
+						<Col>
+							<h6>Query sorted by</h6> {' '}
+							<ButtonDropdown isOpen={this.state.sortingDropdownOpen} toggle={this.toggleSorting} direction="right">
+								<DropdownToggle caret>
+									{this.state.sortingSelectionNames[this.state.sortingSelection]}
+								</DropdownToggle>
+								<DropdownMenu>
+									<DropdownItem onClick={()=> this.onChangingSorting(0)} active={this.state.sortingSelection === 0}>latest</DropdownItem>
+									<DropdownItem onClick={()=> this.onChangingSorting(1)} active={this.state.sortingSelection === 1}>earliest today</DropdownItem>
+									<DropdownItem onClick={()=> this.onChangingSorting(2)} active={this.state.sortingSelection === 2}>earliest</DropdownItem>
+								</DropdownMenu>
+							</ButtonDropdown>
+						</Col>
+					</Row>
+					<Line data={this.state.chartData} options={this.state.chartOptions}/>	
+				</Container>
 				
-				<Line data={this.state.chartData} options={this.state.chartOptions} redraw/>
 			</div>
 		);
 	}
