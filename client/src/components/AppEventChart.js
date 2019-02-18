@@ -42,7 +42,7 @@ class AppEventChart extends Component{
 						id: 'right-y',
 						type: "linear",
 						ticks: {
-							min: 30,
+							min: 20,
 							max: 60
 						},
 						scaleLabel: {

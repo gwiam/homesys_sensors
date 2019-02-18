@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const path = require('path');
 const events = require('./routes/events');
 const app = express();
 
@@ -13,6 +14,15 @@ const dbConfig = require("./config/keys").mongoURI;
 // Use routes
 app.use('/events', events);
 
+// Serve in production environment
+if (process.env.NODE_ENV === 'production'){
+
+	app.use(express.static('client/build'));
+	// we are in production, point to client/build path
+	app.get('*', (req, res) => {
+		res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+	});
+}
 // server port
 const port = process.env.port || 8080;
 

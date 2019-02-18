@@ -4,6 +4,7 @@
   "description": "Home automation webapp",
   "main": "index.js",
   "scripts": {
+    "prod-start" : "export NODE_ENV='production' && node index.js",
     "start": "node index.js",
     "server": "nodemon index.js --ignore 'client/node_modules/*'",
     "client": "npm start --prefix client",
