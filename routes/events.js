@@ -18,35 +18,21 @@ router.get('/', (req, res) => {
 // @route POST /events
 // @desc post a new event to db
 router.post("/", (req, res) => {
-	switch(req.body.sortBy){
-		case 0:
-			// sort by latest
-			EventEntry.find({eventType: "TempSensor"})
-				.sort({timestamp: -1})
-				.limit(req.body.limit)
+	if (req.body.ignoreDate){
+		//without date limits
+		EventEntry.find({eventType: "TempSensor"})
+			.sort({timestamp: req.body.sortBy})
+			.limit(req.body.limit) // 0 is no limit
 			.then(entries => res.json(entries)
-			);
-			break;
-		case 1:
-			// sort by earliest today
-			// sort by latest
-			EventEntry.find({eventType: "TempSensor",
-							timestamp: { $gte: (new Date()).setUTCHours(0,0,0,0)}})
-				.sort({timestamp: 1})
-				.limit(req.body.limit)
+		);
+	}else{
+		EventEntry.find({eventType: "TempSensor",
+						 timestamp: { $gte: (new Date(req.body.date)).setUTCHours(0,0,0,0)}})
+			.sort({timestamp: req.body.sortBy})
+			.limit(req.body.limit)
 			.then(entries => res.json(entries)
-			);
-			break;
-		case 2:
-			// sort by earliest
-			EventEntry.find({eventType: "TempSensor"})
-				.sort({timestamp: 1})
-				.limit(req.body.limit)
-			.then(entries => res.json(entries)
-			);
-			break;
+		);
 	}
-
 })
 
 module.exports = router;

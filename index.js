@@ -16,9 +16,9 @@ app.use('/events', events);
 
 // Serve in production environment
 if (process.env.NODE_ENV === 'production'){
-
-	app.use(express.static('client/build'));
 	// we are in production, point to client/build path
+	app.use(express.static('client/build'));
+	//reroute all traffic to the client/build index file
 	app.get('*', (req, res) => {
 		res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
 	});
