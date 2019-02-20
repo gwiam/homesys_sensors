@@ -33,8 +33,8 @@ class AppEventChart extends Component{
 						id: 'left-y',
 						type: "linear",
 						ticks: {
-							min: 15,
-							max: 30
+							min: 10,
+							max: 40
 						},
 						scaleLabel: {
 							display:     true,
@@ -46,8 +46,8 @@ class AppEventChart extends Component{
 						id: 'right-y',
 						type: "linear",
 						ticks: {
-							min: 20,
-							max: 60
+							min: 15,
+							max: 65
 						},
 						scaleLabel: {
 							display:     true,
